@@ -47,7 +47,11 @@ by Sadinle et al. (2019).
 # Journal of the American Statistical Association, 114:525, 223-234, 2019.
 
 from typing import List
+
+import mplcursors as mplcursors
 import numpy as np
+from matplotlib import cm
+from matplotlib.colors import Normalize
 from sklearn.naive_bayes import GaussianNB
 from sklearn.model_selection import train_test_split
 import matplotlib.pyplot as plt
@@ -97,7 +101,7 @@ plt.scatter(
 )
 plt.xlabel('$x_1$', fontsize=15)
 plt.ylabel('$x_2$', fontsize=15)
-plt.savefig('results/extension/ext_1.png')
+# plt.savefig('results/extension/ext_1.png')
 plt.show()
 
 
@@ -113,8 +117,29 @@ plt.show()
 clf = GaussianNB().fit(X_train, y_train)
 y_pred = clf.predict(X_test)
 y_pred_proba = clf.predict_proba(X_test)
+print(y_pred_proba)
 y_pred_proba_max = np.max(y_pred_proba, axis=1)
-
+################################################
+arr=[y_pred_proba[:,0],y_pred_proba[:,1],y_pred_proba[:,2]]
+for i, val in enumerate(arr):
+    fig, ax = plt.subplots(1, 1, figsize=(5, 5))
+    minima = np.min(val)
+    maxima = np.max(val)
+    normalized = Normalize(vmin=minima, vmax=maxima, clip=True)
+    mapper = cm.ScalarMappable(norm=normalized, cmap=cm.viridis)
+    color = []
+    for v in val:
+        color.append(mapper.to_rgba(v))
+    scatter = ax.scatter([item[0] for item in X_test], [item[1] for item in X_test],
+                         color=[item for item in color], s=7)
+    ax.set_aspect('equal', adjustable='box')
+    ax.title.set_text("Class "+str(i+1)+" probabilities")
+    plt.xlabel('$x_1$')
+    plt.ylabel('$x_2$')
+    # cursor = mplcursors.cursor(scatter, hover=True)
+    plt.show()
+# plt.savefig("results/effectiveness/wdt.png")
+################################################
 methods = ["score", "cumulated_score"]
 mapie, y_pred_mapie, y_ps_mapie = {}, {}, {}
 alpha = [0.2, 0.1, 0.05]
@@ -182,7 +207,7 @@ for i, method in enumerate(methods):
     n = mapie[method].n_samples_
     quantiles = mapie[method].quantiles_
     plot_scores(alpha, conformity_scores, quantiles, method, axs[i])
-plt.savefig('results/extension/ext_2.png')
+# plt.savefig('results/extension/ext_2.png')
 plt.show()
 
 ##############################################################################
@@ -238,7 +263,7 @@ def plot_results(
         axs[i + 1].set_title(f"Number of labels for alpha={alpha_}")
         axs[i + 1].set_xlabel('$x_1$', fontsize=15)
         axs[i + 1].set_ylabel('$x_2$', fontsize=15)
-    plt.savefig('results/extension/ext_3.png')
+    # plt.savefig('results/extension/ext_3.png')
     plt.show()
 
 
@@ -298,7 +323,7 @@ for method in methods:
 axs[2].set_xlabel("1 - alpha")
 axs[2].set_ylabel("Average size of prediction sets")
 axs[2].legend()
-plt.savefig('results/extension/ext_4.png')
+# plt.savefig('results/extension/ext_4.png')
 plt.show()
 
 
